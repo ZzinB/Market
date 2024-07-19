@@ -7,7 +7,9 @@ public interface MemberService {
 //    Member findByUsername(String username);
 //    Member findByEmail(String email);
 
-    Member saveUser(Member member);
+//    Member saveUser(Member member);
+//
+//    Member getUserByEmail(String email);
 
-    Member getUserByEmail(String email);
+    Member registerMember (Member member);
 }

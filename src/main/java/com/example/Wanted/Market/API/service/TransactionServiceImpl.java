@@ -36,7 +36,7 @@ public class TransactionServiceImpl implements TransactionService {
         Member seller = memberRepository.findByUsername(sellerUsername)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (!transaction.getSeller().getMemberId().equals(seller.getMemberId())) {
+        if (!transaction.getSeller().getId().equals(seller.getId())) {
             throw new AccessDeniedException("You are not authorized to approve this transaction");
         }
 
