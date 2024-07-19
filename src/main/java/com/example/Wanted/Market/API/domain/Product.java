@@ -20,10 +20,10 @@ public class Product {
     private ProductStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "seller_id", referencedColumnName = "memberId")
+    @JoinColumn(name = "seller_id", referencedColumnName = "id")
     private Member seller;
 
     @ManyToOne
-    @JoinColumn(name = "buyer_id", referencedColumnName = "memberId")
+    @JoinColumn(name = "buyer_id", referencedColumnName = "id")
     private Member buyer;
 }

@@ -13,10 +13,13 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long addressId;
 
+    private String street;
     private String city;
+    private String state;
+    private String zipCode;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "id")
     private Member member;
 
 }

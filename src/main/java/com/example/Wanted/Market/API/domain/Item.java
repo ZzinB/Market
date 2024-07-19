@@ -23,7 +23,7 @@ public class Item {
     private ProductStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "seller_id", referencedColumnName = "memberId")
+    @JoinColumn(name = "seller_id", referencedColumnName = "id")
     private Member seller;
 
     @OneToMany(mappedBy = "item")
