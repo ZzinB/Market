@@ -17,34 +17,33 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(user);
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests(authorizeRequests -> {
-                    authorizeRequests
-                            .requestMatchers("/api/items/**").permitAll()
-                            .anyRequest().authenticated();
-                })
-                .formLogin((formLogin) -> {
-                    formLogin
-                            .loginPage("/login/login")
-                            .usernameParameter("username")
-                            .passwordParameter("password")
-                            .loginProcessingUrl("/login/login-proc")
-                            .defaultSuccessUrl("/", true);
-                })
-                .httpBasic(withDefaults());
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(formLogin -> formLogin
+                        .loginPage("/login")  // 사용자 정의 로그인 페이지 설정
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .permitAll()
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendRedirect("/access-denied");
+                        })
+                )
+                .csrf((csrfConfig) ->
+                        csrfConfig.disable()
+                )  // 필요에 따라 CSRF 보호 비활성화
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .invalidSessionUrl("/login?invalid-session=true")
+                );
+
         return http.build();
     }
 }
