@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -38,5 +39,18 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         return new User(member.getUsername(), member.getPassword(), new ArrayList<>());
+    }
+
+    public boolean authenticate(String username, String password) {
+        // Optional<Member>를 사용하여 회원 조회
+        Optional<Member> optionalMember = memberRepository.findByUsername(username);
+
+        // 회원이 존재하면 비밀번호를 확인하고, 존재하지 않으면 false 반환
+        if (optionalMember.isPresent()) {
+            Member member = optionalMember.get();
+            return passwordEncoder.matches(password, member.getPassword());
+        } else {
+            return false; // 회원이 존재하지 않음
+        }
     }
 }

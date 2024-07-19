@@ -12,4 +12,5 @@ public interface MemberService {
 //    Member getUserByEmail(String email);
 
     Member registerMember (Member member);
+
 }
