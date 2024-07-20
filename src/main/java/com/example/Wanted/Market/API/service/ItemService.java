@@ -13,6 +13,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * 물건 재고 상태 관리, 주문 처리
+ */
 @Service
 public class ItemService {
     @Autowired
@@ -25,7 +28,7 @@ public class ItemService {
     private MemberRepository memberRepository;
 
     public Item createItem(Item item) {
-        item.setStatus(ProductStatus.AVAILABLE); // 상태를 Enum으로 설정
+        item.setStatus(ProductStatus.AVAILABLE); // 상태를 Enum(AVAILABLE)으로 설정
         return itemRepository.save(item);
     }
 
@@ -49,7 +52,7 @@ public class ItemService {
         order.setOrderId(UUID.randomUUID().toString());
         order.setBuyer(buyer);
         order.setOrderDate(new Date());
-        order.setStatus(OrderStatus.ORDERED); // 예약 상태로 설정
+        order.setStatus(OrderStatus.ORDERED); // 주문이 들어온 물건을 예약 상태로 설정
 
         // 주문 상품 생성
         OrderItems orderItem = new OrderItems();

@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 제품 정보 관리, 구매자와 연결
+ */
 @Service
 public class ProductServiceImpl implements ProductService{
     @Autowired
