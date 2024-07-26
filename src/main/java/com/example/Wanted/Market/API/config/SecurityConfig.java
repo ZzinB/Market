@@ -23,14 +23,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/payment/**").permitAll()
                         .anyRequest().authenticated()
                 )
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .permitAll()
-//                )
-                .formLogin(withDefaults())
+//                .formLogin(formLogin ->
+//                formLogin
+//                    .loginPage("/login")
+//                    .defaultSuccessUrl("/", true)
+//                    .permitAll()
+//            )
                 .logout(withDefaults());
 
         return http.build();

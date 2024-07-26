@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.example.Wanted.Market.API.service.ItemServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-07-18T13:40:13" hostname="isinbiui-MacBookPro.local" time="1.023">
-  <properties/>
-  <testcase name="testGetAllItems()" classname="com.example.Wanted.Market.API.service.ItemServiceTest" time="1.023"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
