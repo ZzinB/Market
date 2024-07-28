@@ -39,7 +39,7 @@ public class KakaoPayController {
 //        KakaoApproveResponse response = kakaoPayService.ApproveResponse(pgToken);
 //        return new ResponseEntity<>(response, HttpStatus.OK);
 //    }
-    @PostMapping("/success")
+    @PostMapping ("/success")
     //public ResponseEntity afterPayRequest(@RequestParam("pg_token") String pgToken) {
     public ResponseEntity<KakaoApproveResponse> afterPayRequest(@RequestParam("pg_token") String pgToken) {
 

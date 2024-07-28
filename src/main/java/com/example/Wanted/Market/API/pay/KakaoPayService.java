@@ -103,15 +103,20 @@ public class KakaoPayService {
         public KakaoApproveResponse approveResponse (String pgToken){
 
             // 카카오 요청
-            MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-            parameters.add("cid", payProperties.getCid());
-            parameters.add("tid", kakaoReady.getTid());
-            parameters.add("partner_order_id", "가맹점 주문 번호");
-            parameters.add("partner_user_id", "가맹점 회원 ID");
-            parameters.add("pg_token", pgToken);
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("cid", payProperties.getCid());
+            parameters.put("tid", kakaoReady.getTid());
+            parameters.put("partner_order_id", "ORDER_ID");
+            parameters.put("partner_user_id", "USER_ID");
+            parameters.put("pg_token", pgToken);
 
             // 파라미터, 헤더
-            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+            System.out.println();
+            System.out.println();
+            System.out.println(requestEntity);
+            System.out.println();
+            System.out.println();
 
             // 외부에 보낼 url
             RestTemplate restTemplate = new RestTemplate();
@@ -120,7 +125,13 @@ public class KakaoPayService {
                     "https://open-api.kakaopay.com/online/v1/payment/approve",
                     requestEntity,
                     KakaoApproveResponse.class);
-
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println(approveResponse);
+            System.out.println();
+            System.out.println();
+            System.out.println();
             return approveResponse;
     }
 
