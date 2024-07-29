@@ -138,18 +138,18 @@ public class KakaoPayService {
     /**
      * 결제 환불
      */
-    public KakaoCancelResponse kakaoCancel() {
+    public KakaoCancelResponse kakaoCancel(String tid) {
 
         // 카카오페이 요청
-        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-        parameters.add("cid", payProperties.getCid());
-        parameters.add("tid", "환불할 결제 고유 번호");
-        parameters.add("cancel_amount", "환불 금액");
-        parameters.add("cancel_tax_free_amount", "환불 비과세 금액");
-        parameters.add("cancel_vat_amount", "환불 부가세");
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("cid", payProperties.getCid());
+        parameters.put("tid", tid);
+        parameters.put("cancel_amount", "2200");
+        parameters.put("cancel_tax_free_amount", "0");
+        parameters.put("cancel_vat_amount", "0");
 
         // 파라미터, 헤더
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
 
         // 외부에 보낼 url
         RestTemplate restTemplate = new RestTemplate();
@@ -158,6 +158,12 @@ public class KakaoPayService {
                 "https://open-api.kakaopay.com/online/v1/payment/cancel",
                 requestEntity,
                 KakaoCancelResponse.class);
+
+        System.out.println();
+        System.out.println();
+        System.out.println(cancelResponse);
+        System.out.println();
+        System.out.println();
 
         return cancelResponse;
     }

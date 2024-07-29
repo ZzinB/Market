@@ -79,9 +79,9 @@ public class KakaoPayController {
      */
     @PostMapping("/refund")
     //public ResponseEntity refund() {
-    public ResponseEntity<KakaoCancelResponse> refund() {
+    public ResponseEntity<KakaoCancelResponse> refund(@RequestParam("tid") String tid) {
 
-        KakaoCancelResponse kakaoCancelResponse = kakaoPayService.kakaoCancel();
+        KakaoCancelResponse kakaoCancelResponse = kakaoPayService.kakaoCancel(tid);
 
         return new ResponseEntity<>(kakaoCancelResponse, HttpStatus.OK);
     }
