@@ -1,4 +1,4 @@
-package com.example.Wanted.Market.API.pay.exception;
+package com.example.Wanted.Market.API.pay.kakaopay.exception;
 import lombok.Getter;
 
 public enum ExceptionCode {

@@ -1,10 +1,10 @@
-package com.example.Wanted.Market.API.pay;
+package com.example.Wanted.Market.API.pay.kakaopay;
 
-import com.example.Wanted.Market.API.pay.dto.KakaoApproveResponse;
-import com.example.Wanted.Market.API.pay.dto.KakaoCancelResponse;
-import com.example.Wanted.Market.API.pay.dto.KakaoReadyResponse;
-import com.example.Wanted.Market.API.pay.exception.BusinessLogicException;
-import com.example.Wanted.Market.API.pay.exception.ExceptionCode;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoApproveResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoCancelResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoReadyResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.exception.BusinessLogicException;
+import com.example.Wanted.Market.API.pay.kakaopay.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

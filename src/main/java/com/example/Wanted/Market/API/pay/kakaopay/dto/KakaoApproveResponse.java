@@ -1,4 +1,4 @@
-package com.example.Wanted.Market.API.pay.dto;
+package com.example.Wanted.Market.API.pay.kakaopay.dto;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,18 +1,14 @@
-package com.example.Wanted.Market.API.pay;
+package com.example.Wanted.Market.API.pay.kakaopay;
 
-import com.example.Wanted.Market.API.pay.dto.KakaoApproveResponse;
-import com.example.Wanted.Market.API.pay.dto.KakaoCancelResponse;
-import com.example.Wanted.Market.API.pay.dto.KakaoReadyResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoApproveResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoCancelResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoReadyResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
