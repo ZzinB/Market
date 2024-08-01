@@ -1,7 +1,8 @@
 package com.example.Wanted.Market.API.pay;
 
-import com.example.Wanted.Market.API.pay.dto.KakaoApproveResponse;
-import com.example.Wanted.Market.API.pay.dto.KakaoReadyResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.KakaoPayService;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoApproveResponse;
+import com.example.Wanted.Market.API.pay.kakaopay.dto.KakaoReadyResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
