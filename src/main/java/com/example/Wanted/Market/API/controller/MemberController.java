@@ -1,6 +1,7 @@
 package com.example.Wanted.Market.API.controller;
 
 import com.example.Wanted.Market.API.domain.Member;
+import com.example.Wanted.Market.API.dto.MemberDto;
 import com.example.Wanted.Market.API.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,8 +27,8 @@ public class MemberController {
     @ApiResponse(responseCode = "200", description = "User registered successfully")
     @ApiResponse(responseCode = "400", description = "Bad request")
 
-    public ResponseEntity<String> register(@RequestBody Member member) {
-        memberService.registerMember(member);
+    public ResponseEntity<String> register(@RequestBody MemberDto memberDto) {
+        memberService.registerMember(memberDto);
         return ResponseEntity.ok("Member registered successfully");
     }
 
@@ -39,9 +40,12 @@ public class MemberController {
         String username = credentials.get("username");
         String password = credentials.get("password");
 
-        // Implement your login logic here
-        if ("user".equals(username) && "password".equals(password)) {
-            return ResponseEntity.ok("Logged in");
+        // Authenticate the user using the memberService
+        boolean isAuthenticated = memberService.authenticate(username, password);
+
+        if (isAuthenticated) {
+            // Generate a token or return a successful login response
+            return ResponseEntity.ok("Logged in successfully");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
