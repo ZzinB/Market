@@ -1,5 +1,7 @@
 package com.example.Wanted.Market.API.config;
 
+import com.example.Wanted.Market.API.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,8 @@ public class SecurityConfig {
     @Value("${remember.me.key}")
     private String rememberMeKey;
 
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -47,7 +51,7 @@ public class SecurityConfig {
                                 .tokenRepository(inMemoryTokenRepository())
                                 .tokenValiditySeconds(86400)
                                 .key(rememberMeKey) // 환경 변수에서 비밀 키 가져오기
-                                .userDetailsService(userDetailsService())
+                                .userDetailsService(customUserDetailsService)
                 )
                 .sessionManagement(sessionManagement ->
                         sessionManagement
@@ -67,16 +71,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("password"))
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(user);
     }
 }
