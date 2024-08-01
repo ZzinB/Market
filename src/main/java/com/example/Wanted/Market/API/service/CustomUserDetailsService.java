@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -20,18 +21,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 회원을 Optional로 조회
-        Optional<Member> optionalMember = memberRepository.findByUsername(username);
-
-        // 값을 추출하고 없을 경우 예외를 던짐
-        Member member = optionalMember.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        // UserDetails 객체를 반환
-        return new org.springframework.security.core.userdetails.User(
-                member.getUsername(),
-                member.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+        Member user = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), new ArrayList<>());
     }
 }
 
