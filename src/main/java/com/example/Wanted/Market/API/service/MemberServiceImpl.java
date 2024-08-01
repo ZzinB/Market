@@ -1,6 +1,7 @@
 package com.example.Wanted.Market.API.service;
 
 import com.example.Wanted.Market.API.domain.Member;
+import com.example.Wanted.Market.API.dto.MemberDto;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,15 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Member registerMember(Member member) {
-        if (memberRepository.findByUsername(member.getUsername()).isPresent()) {
-            throw new IllegalStateException("Username already taken");
-        }
-        member.setPassword(passwordEncoder.encode(member.getPassword()));
+    public Member registerMember(MemberDto memberDto) {
+        // MemberDto를 Member로 변환
+        Member member = new Member();
+        member.setUsername(memberDto.getUsername());
+        member.setEmail(memberDto.getEmail());
+        member.setPassword(passwordEncoder.encode(memberDto.getPassword()));
+        member.setRole(memberDto.getRole());
+
+        // Member 저장
         return memberRepository.save(member);
     }
 
@@ -41,6 +46,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         return new User(member.getUsername(), member.getPassword(), new ArrayList<>());
     }
 
+    @Override
     public boolean authenticate(String username, String password) {
         // Optional<Member>를 사용하여 회원 조회
         Optional<Member> optionalMember = memberRepository.findByUsername(username);
