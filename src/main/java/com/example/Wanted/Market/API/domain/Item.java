@@ -4,16 +4,19 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
+@ToString
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String itemId;
+    private Long itemId;
 
     private String name;
     private int price;

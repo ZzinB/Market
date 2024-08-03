@@ -1,5 +1,9 @@
 package com.example.Wanted.Market.API.service;
 
+import com.example.Wanted.Market.API.Payment.PaymentService;
+import com.example.Wanted.Market.API.Payment.dto.PaymentRequest;
+import com.example.Wanted.Market.API.Payment.dto.PaymentResponse;
+import com.example.Wanted.Market.API.Payment.dto.PaymentStatus;
 import com.example.Wanted.Market.API.domain.*;
 import com.example.Wanted.Market.API.exception.ResourceNotFoundException;
 import com.example.Wanted.Market.API.repository.ItemRepository;
@@ -14,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 물건 재고 상태 관리, 주문 처리
+ * 물건 관리 및 구매 처리
  */
 @Service
 public class ItemService {
@@ -27,8 +31,17 @@ public class ItemService {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private PaymentService paymentService;
+
+    public ItemService(ItemRepository itemRepository, MemberRepository memberRepository) {
+        this.itemRepository = itemRepository;
+        this.memberRepository = memberRepository;
+    }
+
     public Item createItem(Item item) {
         item.setStatus(ProductStatus.AVAILABLE); // 상태를 Enum(AVAILABLE)으로 설정
+        item.setStockQuantity(1);
         return itemRepository.save(item);
     }
 
@@ -49,14 +62,12 @@ public class ItemService {
 
         // 주문 생성
         Orders order = new Orders();
-        order.setOrderId(UUID.randomUUID().toString());
         order.setBuyer(buyer);
         order.setOrderDate(new Date());
         order.setStatus(OrderStatus.ORDERED); // 주문이 들어온 물건을 예약 상태로 설정
 
         // 주문 상품 생성
         OrderItems orderItem = new OrderItems();
-        orderItem.setOrderItemId(UUID.randomUUID().toString());
         orderItem.setItem(item);
         orderItem.setOrder(order);
         orderItem.setOrderPrice(item.getPrice());
@@ -66,8 +77,33 @@ public class ItemService {
         orderItemsList.add(orderItem);
         order.setOrderItems(orderItemsList);
 
-        // 주문 저장 및 반환
-        return ordersRepository.save(order);
+        Orders savedOrder = ordersRepository.save(order);
+
+        // 결제 처리
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setAmount((long) item.getPrice()); // 금액을 long으로 변환
+        //paymentRequest.setDescription("Purchase of item: " + item.getId());
+        PaymentResponse paymentResponse = paymentService.processPayment(paymentRequest);
+
+        PaymentStatus paymentStatus = paymentService.checkPaymentStatus(paymentResponse.getTransactionId());
+        if ("SUCCESS".equals(paymentStatus.getStatus())) {
+            item.setStatus(ProductStatus.COMPLETED); // 결제 완료 시 상태를 COMPLETED로 변경
+            itemRepository.save(item);
+        } else {
+            throw new RuntimeException("Payment failed");
+        }
+
+        // 판매자에게 포인트 전송
+        double sellerEarnings = item.getPrice() * 0.9; // 90% 지급
+        Member seller = item.getSeller();
+        seller.setPoints(seller.getPoints() + sellerEarnings);
+        memberRepository.save(seller);
+
+        // 물건 상태 업데이트
+        item.setStatus(ProductStatus.COMPLETED);
+        itemRepository.save(item);
+
+        return savedOrder;
     }
 
     public Item getItemById(String itemId) {
