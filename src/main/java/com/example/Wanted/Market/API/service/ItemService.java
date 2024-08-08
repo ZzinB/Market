@@ -9,6 +9,7 @@ import com.example.Wanted.Market.API.exception.ResourceNotFoundException;
 import com.example.Wanted.Market.API.repository.ItemRepository;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import com.example.Wanted.Market.API.repository.OrdersRepository;
+import com.example.Wanted.Market.API.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
  */
 @Service
 public class ItemService {
+
     @Autowired
     private ItemRepository itemRepository;
 
@@ -34,18 +36,19 @@ public class ItemService {
     @Autowired
     private PaymentService paymentService;
 
-    public ItemService(ItemRepository itemRepository, MemberRepository memberRepository) {
+    public ItemService(ItemRepository itemRepository, MemberRepository memberRepository, PaymentService paymentService) {
         this.itemRepository = itemRepository;
         this.memberRepository = memberRepository;
+        this.paymentService = paymentService;
     }
 
     public Item createItem(Item item) {
         item.setStatus(ProductStatus.AVAILABLE); // 상태를 Enum(AVAILABLE)으로 설정
-        item.setStockQuantity(1);
+        item.setStockQuantity(1); // 기본 재고 수량 설정
         return itemRepository.save(item);
     }
 
-    public Orders purchaseItem(String itemId, String buyerEmail) {
+    public Orders purchaseItem(Long itemId, String buyerEmail) {
         // 상품 조회 및 예약 상태 변경
         Item item = getItemById(itemId);
         if (item.getStatus() != ProductStatus.AVAILABLE) {
@@ -58,6 +61,11 @@ public class ItemService {
         Member buyer = memberRepository.findByEmail(buyerEmail);
         if (buyer == null) {
             throw new ResourceNotFoundException("Buyer not found");
+        }
+
+        Member seller = item.getSeller();
+        if (seller == null) {
+            throw new IllegalStateException("Seller cannot be null");
         }
 
         // 주문 생성
@@ -82,7 +90,6 @@ public class ItemService {
         // 결제 처리
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setAmount((long) item.getPrice()); // 금액을 long으로 변환
-        //paymentRequest.setDescription("Purchase of item: " + item.getId());
         PaymentResponse paymentResponse = paymentService.processPayment(paymentRequest);
 
         PaymentStatus paymentStatus = paymentService.checkPaymentStatus(paymentResponse.getTransactionId());
@@ -95,18 +102,13 @@ public class ItemService {
 
         // 판매자에게 포인트 전송
         double sellerEarnings = item.getPrice() * 0.9; // 90% 지급
-        Member seller = item.getSeller();
         seller.setPoints(seller.getPoints() + sellerEarnings);
         memberRepository.save(seller);
-
-        // 물건 상태 업데이트
-        item.setStatus(ProductStatus.COMPLETED);
-        itemRepository.save(item);
 
         return savedOrder;
     }
 
-    public Item getItemById(String itemId) {
+    public Item getItemById(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
     }
@@ -114,5 +116,4 @@ public class ItemService {
     public List<Item> getAllItems() {
         return itemRepository.findAll();
     }
-
 }

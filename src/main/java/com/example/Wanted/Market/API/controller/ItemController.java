@@ -31,12 +31,12 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public Item getItemById(@PathVariable String itemId) {
+    public Item getItemById(@PathVariable Long itemId) {
         return itemService.getItemById(itemId);
     }
 
     @PostMapping("/{itemId}/purchase")
-    public Orders purchaseItem(@PathVariable String itemId, @RequestParam String buyerEmail) {
+    public Orders purchaseItem(@PathVariable Long itemId, @RequestParam String buyerEmail) {
         return itemService.purchaseItem(itemId, buyerEmail);
     }
 }
