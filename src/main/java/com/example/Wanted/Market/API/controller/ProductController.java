@@ -17,25 +17,33 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<?> addProduct(@RequestBody Product product, Principal principal) {
-        productService.addProduct(product, principal.getName());
-        return ResponseEntity.ok("제품 등록 성공");
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product createdProduct = productService.createProduct(product);
+        return ResponseEntity.ok(createdProduct);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Product>> getProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    @PutMapping("/{productId}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long productId, @RequestBody Product product) {
+        Product updatedProduct = productService.updateProduct(productId, product);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProduct(@PathVariable Long productId) {
-        return ResponseEntity.ok(productService.getProduct(productId));
+    public ResponseEntity<Product> getProductById(@PathVariable Long productId) {
+        Product product = productService.getProductById(productId);
+        return ResponseEntity.ok(product);
     }
 
-    @PostMapping("/{productId}/buy")
-    public ResponseEntity<?> buyProduct(@PathVariable Long productId, Principal principal) {
-        productService.buyProduct(productId, principal.getName());
-        return ResponseEntity.ok("구매 요청 성공");
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
     }
 }
 
