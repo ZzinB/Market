@@ -5,6 +5,7 @@ import com.example.Wanted.Market.API.Payment.dto.PaymentRequest;
 import com.example.Wanted.Market.API.Payment.dto.PaymentResponse;
 import com.example.Wanted.Market.API.Payment.dto.PaymentStatus;
 import com.example.Wanted.Market.API.domain.*;
+import com.example.Wanted.Market.API.dto.ItemDetailResponse;
 import com.example.Wanted.Market.API.repository.ItemRepository;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import com.example.Wanted.Market.API.repository.OrdersRepository;
@@ -260,4 +261,28 @@ class ItemServiceTest {
         // Verify that the alert for modification being not allowed was sent
         verify(notificationService).sendAlert(any(Item.class));
     }
+
+    @Test
+    @DisplayName("상품 상세보기 - 수정 가능일 및 수정 가능 여부 확인")
+    void getItemDetails_ShouldReturnCorrectDetails() {
+        // Given
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime creationDate = now.minusDays(8); // 8일 전
+        Item item = new Item();
+        item.setItemId(1L);
+        item.setCreatedAt(creationDate);
+        item.setUpdatedAt(now);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+
+        // When
+        ItemDetailResponse response = itemService.getItemDetails(1L);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(item, response.getItem());
+        assertEquals(creationDate.toLocalDate().plusDays(10), response.getModificationAllowedDate());
+        assertTrue(response.isCanBeModified());
+    }
+
 }
