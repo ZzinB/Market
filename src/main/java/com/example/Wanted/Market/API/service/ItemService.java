@@ -12,6 +12,7 @@ import com.example.Wanted.Market.API.repository.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -114,14 +115,32 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
+    /**
+     * 상품의 수정 가능일을 계산합니다.
+     * @param item Item 객체
+     * @return 수정 가능일 (10일이 되기 하루 전), 수정 불가 시 null
+     */
+    private LocalDate calDate(Item item) {
+        LocalDateTime now = LocalDateTime.now();
+        long daysBetween = ChronoUnit.DAYS.between(item.getCreatedAt(), now);
+
+        if (daysBetween >= 10) {
+            return null; // 10일 이후에는 수정 불가
+        }
+
+        // 수정 가능일 계산 (10일이 되는 날)
+        LocalDateTime modificationAllowedDate = item.getCreatedAt().plusDays(10);
+        return modificationAllowedDate.toLocalDate();
+    }
+
     public Item updateItem(Long itemId, Item newItemData) {
         Item existingItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found"));
 
-        LocalDateTime now = LocalDateTime.now();
-        long daysBetween = ChronoUnit.DAYS.between(existingItem.getCreatedAt(), now);
+        LocalDate modificationAllowedDate = calDate(existingItem);
+        LocalDate now = LocalDate.now();
 
-        if (daysBetween > 10) {
+        if (modificationAllowedDate == null) {
             notificationService.sendAlert(existingItem);
             throw new IllegalStateException("Item cannot be updated after 10 days from creation.");
         }
@@ -130,12 +149,12 @@ public class ItemService {
         existingItem.setName(newItemData.getName());
         existingItem.setPrice(newItemData.getPrice());
         existingItem.setStockQuantity(newItemData.getStockQuantity());
-        existingItem.setUpdatedAt(now);
+        existingItem.setUpdatedAt(LocalDateTime.now());
 
         itemRepository.save(existingItem);
 
         // Check for 9-day alert
-        if (daysBetween == 9) {
+        if (modificationAllowedDate.minusDays(1).equals(now)) {
             notificationService.sendWarning(existingItem);
         }
         return existingItem;
