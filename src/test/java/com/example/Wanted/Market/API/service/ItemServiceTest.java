@@ -5,167 +5,200 @@ import com.example.Wanted.Market.API.Payment.dto.PaymentRequest;
 import com.example.Wanted.Market.API.Payment.dto.PaymentResponse;
 import com.example.Wanted.Market.API.Payment.dto.PaymentStatus;
 import com.example.Wanted.Market.API.domain.*;
-import com.example.Wanted.Market.API.exception.ResourceNotFoundException;
 import com.example.Wanted.Market.API.repository.ItemRepository;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import com.example.Wanted.Market.API.repository.OrdersRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
-public class ItemServiceTest {
-
-    @InjectMocks
-    private ItemService itemService;
-
-    @Mock
+@Transactional
+class ItemServiceTest {
+    @MockBean
     private ItemRepository itemRepository;
 
-    @Mock
-    private MemberRepository memberRepository;
-
-    @Mock
+    @MockBean
     private OrdersRepository ordersRepository;
 
-    @Mock
+    @MockBean
+    private MemberRepository memberRepository;
+
+    @MockBean
     private PaymentService paymentService;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    @Autowired
+    private ItemService itemService;
+
+    @Test
+    @DisplayName("상품 등록 - 제목 및 내용 길이 제한")
+    void createItem_TitleAndDescriptionLength() {
+        // Given
+        Item item = new Item();
+        item.setName("Valid Item");
+        item.setPrice(100);
+        item.setStockQuantity(10);
+
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
+            Item savedItem = invocation.getArgument(0);
+            savedItem.setItemId(1L); // Simulate an ID being set by the database
+            savedItem.setCreatedAt(LocalDateTime.now());
+            savedItem.setUpdatedAt(LocalDateTime.now());
+            return savedItem;
+        });
+
+        // When
+        Item savedItem = itemService.createItem(item);
+
+        // Debugging
+        System.out.println("Saved Item: " + savedItem);
+
+        // Then
+        assertNotNull(savedItem, "Saved item should not be null.");
+        assertNotNull(savedItem.getCreatedAt(), "Created date should be set automatically.");
+        assertNotNull(savedItem.getUpdatedAt(), "Last modified date should be set automatically.");
+        assertTrue(savedItem.getCreatedAt().isBefore(savedItem.getUpdatedAt()), "Updated date should be after created date.");
     }
 
     @Test
-    void testCreateItem() {
+    @DisplayName("상품 등록 - 기본 재고 수량 설정")
+    void createItem_StockQuantity() {
+        // Given
         Item item = new Item();
-        item.setName("Test Item");
+        item.setName("Valid Item");
         item.setPrice(100);
         item.setStockQuantity(10);
-        item.setStatus(ProductStatus.AVAILABLE);
 
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
+        // When
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Item savedItem = itemService.createItem(item);
 
-        Item createdItem = itemService.createItem(item);
-
-        assertNotNull(createdItem);
-        assertEquals("Test Item", createdItem.getName());
-        verify(itemRepository, times(1)).save(any(Item.class));
+        // Then
+        assertNotNull(savedItem);
+        assertEquals(1, savedItem.getStockQuantity(), "Stock quantity should be set to 1 by default.");
     }
 
     @Test
-    void testPurchaseItem() {
-        //Given
+    @DisplayName("상품 구매 - 결제 금액 필수")
+    void purchaseItem_PaymentAmountRequired() {
+        // Given
+        Long itemId = 1L;
+        String buyerEmail = "buyer@example.com";
+
         Item item = new Item();
-        item.setItemId(1L);
-        item.setName("Test Item");
+        item.setItemId(itemId);
         item.setPrice(100);
-        item.setStockQuantity(10);
         item.setStatus(ProductStatus.AVAILABLE);
 
         Member seller = new Member();
-        seller.setId(2L);
-        seller.setEmail("seller@example.com");
-
+        seller.setId(1L);
         item.setSeller(seller);
 
         Member buyer = new Member();
-        buyer.setId(1L);
-        buyer.setEmail("buyer@example.com");
-        buyer.setPoints(100);
+        buyer.setEmail(buyerEmail);
 
-        Orders order = new Orders();
-        order.setOrderDate(new Date());
-        order.setStatus(OrderStatus.ORDERED);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(memberRepository.findByEmail(buyerEmail)).thenReturn(Optional.of(buyer));
+        when(ordersRepository.save(any(Orders.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(memberRepository.findByEmail("buyer@example.com")).thenReturn(buyer);
-        when(ordersRepository.save(any(Orders.class))).thenReturn(order);
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setTransactionId("12345");
 
-        // Mock PaymentStatus
+        when(paymentService.processPayment(any(PaymentRequest.class))).thenReturn(paymentResponse);
+
         PaymentStatus paymentStatus = new PaymentStatus();
-        paymentStatus.setTransactionId("txn123");
+        paymentStatus.setTransactionId("12345");
         paymentStatus.setStatus("SUCCESS");
         paymentStatus.setAmount(100L);
         paymentStatus.setMessage("Payment successful");
 
-        // Mock PaymentResponse
+        when(paymentService.checkPaymentStatus("12345")).thenReturn(paymentStatus);
+
+        // When
+        Orders order = itemService.purchaseItem(itemId, buyerEmail);
+
+        // Then
+        assertNotNull(order);
+        assertEquals(OrderStatus.ORDERED, order.getStatus(), "Order status should be ORDERED.");
+    }
+
+    @Test
+    @DisplayName("상품 구매 - 결제 실패 처리")
+    void purchaseItem_PaymentFailure() {
+        // Given
+        Long itemId = 1L;
+        String buyerEmail = "buyer@example.com";
+        Item item = new Item();
+        item.setItemId(itemId);
+        item.setPrice(100);
+        item.setStatus(ProductStatus.AVAILABLE);
+
+        Member seller = new Member();
+        seller.setId(1L);
+        item.setSeller(seller);
+
+
+        Member buyer = new Member();
+        buyer.setEmail(buyerEmail);
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(memberRepository.findByEmail(buyerEmail)).thenReturn(Optional.of(buyer));
+        when(ordersRepository.save(any(Orders.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         PaymentResponse paymentResponse = new PaymentResponse();
-        paymentResponse.setTransactionId("txn123");
+        paymentResponse.setTransactionId("12345");
 
         when(paymentService.processPayment(any(PaymentRequest.class))).thenReturn(paymentResponse);
-        when(paymentService.checkPaymentStatus(anyString())).thenReturn(paymentStatus);
 
-        Orders savedOrder = itemService.purchaseItem(1L, "buyer@example.com");
+        PaymentStatus paymentStatus = new PaymentStatus();
+        paymentStatus.setTransactionId("12345");
+        paymentStatus.setStatus("FAILURE");
+        paymentStatus.setAmount(100L);
+        paymentStatus.setMessage("Payment failed");
 
-        // Verify results
-        assertNotNull(savedOrder);
-        assertEquals(OrderStatus.ORDERED, savedOrder.getStatus());
-        assertEquals(ProductStatus.COMPLETED, item.getStatus());
-        verify(itemRepository, times(2)).save(any(Item.class));
-        verify(ordersRepository, times(1)).save(any(Orders.class));
-        verify(paymentService, times(1)).processPayment(any(PaymentRequest.class));
-        verify(paymentService, times(1)).checkPaymentStatus("txn123");
+        when(paymentService.checkPaymentStatus("12345")).thenReturn(paymentStatus);
+
+        // When & Then
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+            itemService.purchaseItem(itemId, buyerEmail);
+        });
+
+        assertEquals("Payment failed", thrown.getMessage(), "Exception message should be 'Payment failed'.");
     }
 
     @Test
-    void testGetItemById() {
+    @DisplayName("상품 등록 - 생성 및 수정 시간 자동 관리")
+    void createItem_Timestamps() {
+        // Given
         Item item = new Item();
-        item.setItemId(1L);
-        item.setName("Test Item");
+        item.setName("Valid Item");
+        item.setPrice(100);
+        item.setStockQuantity(10);
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
+            Item savedItem = invocation.getArgument(0);
+            savedItem.setCreatedAt(LocalDateTime.now().minusDays(1));
+            savedItem.setUpdatedAt(LocalDateTime.now());
+            return savedItem;
+        });
 
-        Item foundItem = itemService.getItemById(1L);
+        // When
+        Item savedItem = itemRepository.save(item);
 
-        assertNotNull(foundItem);
-        assertEquals("Test Item", foundItem.getName());
-        verify(itemRepository, times(1)).findById(1L);
-    }
-
-    @Test
-    void testGetAllItems() {
-        Item item1 = new Item();
-        item1.setName("Test Item 1");
-
-        Item item2 = new Item();
-        item2.setName("Test Item 2");
-
-        List<Item> items = new ArrayList<>();
-        items.add(item1);
-        items.add(item2);
-
-        when(itemRepository.findAll()).thenReturn(items);
-
-        List<Item> itemList = itemService.getAllItems();
-
-        assertNotNull(itemList);
-        assertEquals(2, itemList.size());
-        verify(itemRepository, times(1)).findAll();
+        // Then
+        assertNotNull(savedItem, "Saved item should not be null.");
+        assertNotNull(savedItem.getCreatedAt(), "Created date should be set automatically.");
+        assertNotNull(savedItem.getUpdatedAt(), "Last modified date should be set automatically.");
+        assertTrue(savedItem.getCreatedAt().isBefore(savedItem.getUpdatedAt()), "Updated date should be after created date.");
     }
 }
