@@ -1,10 +1,10 @@
 package com.example.Wanted.Market.API.service;
 
 import com.example.Wanted.Market.API.domain.Member;
-import com.example.Wanted.Market.API.domain.Role;
-import com.example.Wanted.Market.API.dto.MemberDto;
+import com.example.Wanted.Market.API.dto.UserFormDto;
 import com.example.Wanted.Market.API.repository.MemberRepository;
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.validation.ConstraintViolationException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,16 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class MemberServiceTest {
-
-    @Autowired
-    private MemberService memberService;
 
     @MockBean
     private MemberRepository memberRepository;
@@ -30,62 +26,70 @@ public class MemberServiceTest {
     @MockBean
     private PasswordEncoder passwordEncoder;
 
-    @BeforeEach
-    public void setUp() {
-        // 초기 데이터 설정
+    @Autowired
+    private MemberServiceImpl memberService;
+
+    @Test
+    @DisplayName("회원가입 - 성공 케이스")
+    void registerMember_Success() {
+        // Given
+        UserFormDto userFormDto = new UserFormDto();
+        userFormDto.setName("홍길동");
+        userFormDto.setEmail("test@example.com");
+        userFormDto.setPassword("Test1234!");
+        userFormDto.setPostcode("12345");
+        userFormDto.setAddress("서울특별시 강남구");
+        userFormDto.setDetailAddress("역삼동");
+        userFormDto.setPhoneNumber("010-1234-5678");
+
         Member member = new Member();
-        member.setUsername("newuser");
-        member.setEmail("newuser@example.com");
-        member.setPassword("encodedpassword");
-        member.setRole(Role.USER);
+        member.setUsername(userFormDto.getName());
+        member.setEmail(userFormDto.getEmail());
+        member.setPassword("encodedPassword");
 
-        when(passwordEncoder.encode("password")).thenReturn("encodedpassword");
+        // When
+        when(passwordEncoder.encode(userFormDto.getPassword())).thenReturn("encodedPassword");
         when(memberRepository.save(any(Member.class))).thenReturn(member);
-        when(memberRepository.findByUsername(anyString())).thenReturn(Optional.of(member));
-        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+
+        Member registeredMember = memberService.registerMember(userFormDto);
+
+        // Then
+        assertNotNull(registeredMember);
+        assertEquals("홍길동", registeredMember.getUsername());
+        assertEquals("test@example.com", registeredMember.getEmail());
     }
 
     @Test
-    public void testRegisterMember() {
+    @DisplayName("회원가입 - 중복 이메일")
+    void registerMember_DuplicateEmail() {
         // Given
-        MemberDto newMemberDto = new MemberDto();
-        newMemberDto.setUsername("newuser");
-        newMemberDto.setEmail("newuser@example.com");
-        newMemberDto.setPassword("password");
-        newMemberDto.setRole(Role.USER);
+        UserFormDto userFormDto = new UserFormDto();
+        userFormDto.setEmail("test@example.com");
 
-        // When
-        Member member = memberService.registerMember(newMemberDto);
+        when(memberRepository.findByEmail(userFormDto.getEmail()))
+                .thenReturn(Optional.of(new Member()));
 
-        // Then
-        assertThat(member).isNotNull();
-        assertThat(member.getUsername()).isEqualTo("newuser");
-        assertThat(member.getEmail()).isEqualTo("newuser@example.com");
+
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            memberService.registerMember(userFormDto);
+        });
+
+        assertEquals("이미 사용 중인 이메일입니다.", exception.getMessage());
     }
 
     @Test
-    public void testAuthenticateSuccess() {
+    @DisplayName("회원가입 - 잘못된 비밀번호 형식")
+    void registerMember_InvalidPassword() {
         // Given
-        String username = "newuser";
-        String password = "$2a$10$W1x2M42zqa24a6xfvpzpgu7EuZOCJnDSq1nf1isaxEy35brt9V9ty";
+        UserFormDto userFormDto = new UserFormDto();
+        userFormDto.setPassword("weakpass");
 
-        // When
-        boolean isAuthenticated = memberService.authenticate(username, password);
+        // When & Then
+        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
+            memberService.registerMember(userFormDto);
+        });
 
-        // Then
-        assertThat(isAuthenticated).isTrue();
-    }
-
-    @Test
-    public void testAuthenticateFailure() {
-        // Given
-        String username = "newuser";
-        String password = "wrongpassword";
-
-        // When
-        boolean isAuthenticated = memberService.authenticate(username, password);
-
-        // Then
-        assertThat(isAuthenticated).isFalse();
+        assertTrue(exception.getMessage().contains("비밀번호는 최소 8자, 대문자, 소문자, 숫자 및 특수문자를 포함해야 합니다."));
     }
 }
