@@ -12,6 +12,8 @@ import com.example.Wanted.Market.API.repository.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -25,13 +27,17 @@ public class ItemService {
     private final MemberRepository memberRepository;
     private final PaymentService paymentService;
 
+    private final NotificationService notificationService;
+
     @Autowired
     public ItemService(ItemRepository itemRepository, OrdersRepository ordersRepository,
-                       MemberRepository memberRepository, PaymentService paymentService) {
+                       MemberRepository memberRepository, PaymentService paymentService,
+                       NotificationService notificationService) {
         this.itemRepository = itemRepository;
         this.ordersRepository = ordersRepository;
         this.memberRepository = memberRepository;
         this.paymentService = paymentService;
+        this.notificationService = notificationService;
     }
 
     public Item createItem(Item item) {
@@ -108,5 +114,30 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
+    public Item updateItem(Long itemId, Item newItemData) {
+        Item existingItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
 
+        LocalDateTime now = LocalDateTime.now();
+        long daysBetween = ChronoUnit.DAYS.between(existingItem.getCreatedAt(), now);
+
+        if (daysBetween > 10) {
+            notificationService.sendAlert(existingItem);
+            throw new IllegalStateException("Item cannot be updated after 10 days from creation.");
+        }
+
+        // Update item details
+        existingItem.setName(newItemData.getName());
+        existingItem.setPrice(newItemData.getPrice());
+        existingItem.setStockQuantity(newItemData.getStockQuantity());
+        existingItem.setUpdatedAt(now);
+
+        itemRepository.save(existingItem);
+
+        // Check for 9-day alert
+        if (daysBetween == 9) {
+            notificationService.sendWarning(existingItem);
+        }
+        return existingItem;
+    }
 }
