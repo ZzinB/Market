@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Transactional
@@ -36,6 +36,9 @@ class ItemServiceTest {
 
     @MockBean
     private PaymentService paymentService;
+
+    @MockBean
+    private NotificationService notificationService;
 
     @Autowired
     private ItemService itemService;
@@ -200,5 +203,61 @@ class ItemServiceTest {
         assertNotNull(savedItem.getCreatedAt(), "Created date should be set automatically.");
         assertNotNull(savedItem.getUpdatedAt(), "Last modified date should be set automatically.");
         assertTrue(savedItem.getCreatedAt().isBefore(savedItem.getUpdatedAt()), "Updated date should be after created date.");
+    }
+
+
+    @Test
+    @DisplayName("상품 수정 - 생성일 9일째 수정 불가 경고 알림")
+    void updateItem_9DaysAlertNotification() {
+        // Given
+        Item existingItem = new Item();
+        existingItem.setItemId(1L);
+        existingItem.setName("Original Item");
+        existingItem.setPrice(100);
+        existingItem.setStockQuantity(10);
+        existingItem.setCreatedAt(LocalDateTime.now().minusDays(9));
+        existingItem.setUpdatedAt(LocalDateTime.now());
+
+        Item newItemData = new Item();
+        newItemData.setName("Updated Item");
+        newItemData.setPrice(200);
+        newItemData.setStockQuantity(20);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(existingItem));
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        itemService.updateItem(1L, newItemData);
+
+        // Then
+        verify(notificationService).sendWarning(existingItem);
+        verify(notificationService, never()).sendAlert(any(Item.class));
+    }
+
+
+    @Test
+    @DisplayName("상품 수정 - 생성일 10일 이후 수정 시 수정 불가 알림 전송")
+    void updateItem_10DaysAfterModificationNotAllowed() {
+        // Given
+        LocalDateTime creationDate = LocalDateTime.now().minusDays(10); // 10일 전
+        Item existingItem = new Item();
+        existingItem.setItemId(1L);
+        existingItem.setCreatedAt(creationDate);
+        existingItem.setUpdatedAt(creationDate);
+
+        Item newItemData = new Item();
+        newItemData.setName("Updated Item");
+        newItemData.setPrice(200);
+        newItemData.setStockQuantity(20);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(existingItem));
+
+        // When & Then
+        assertThrows(IllegalStateException.class, () -> {
+            itemService.updateItem(1L, newItemData);
+        });
+
+        // Verify that the alert for modification being not allowed was sent
+        verify(notificationService).sendAlert(any(Item.class));
     }
 }
