@@ -9,14 +9,10 @@ import com.example.Wanted.Market.API.exception.ResourceNotFoundException;
 import com.example.Wanted.Market.API.repository.ItemRepository;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import com.example.Wanted.Market.API.repository.OrdersRepository;
-import com.example.Wanted.Market.API.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 물건 관리 및 구매 처리
@@ -24,20 +20,16 @@ import java.util.UUID;
 @Service
 public class ItemService {
 
-    @Autowired
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
+    private final OrdersRepository ordersRepository;
+    private final MemberRepository memberRepository;
+    private final PaymentService paymentService;
 
     @Autowired
-    private OrdersRepository ordersRepository;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private PaymentService paymentService;
-
-    public ItemService(ItemRepository itemRepository, MemberRepository memberRepository, PaymentService paymentService) {
+    public ItemService(ItemRepository itemRepository, OrdersRepository ordersRepository,
+                       MemberRepository memberRepository, PaymentService paymentService) {
         this.itemRepository = itemRepository;
+        this.ordersRepository = ordersRepository;
         this.memberRepository = memberRepository;
         this.paymentService = paymentService;
     }
@@ -58,10 +50,9 @@ public class ItemService {
         itemRepository.save(item);
 
         // 구매자 조회
-        Member buyer = memberRepository.findByEmail(buyerEmail);
-        if (buyer == null) {
-            throw new ResourceNotFoundException("Buyer not found");
-        }
+        Member buyer = memberRepository.findByEmail(buyerEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Buyer not found"));
+
 
         Member seller = item.getSeller();
         if (seller == null) {
@@ -116,4 +107,6 @@ public class ItemService {
     public List<Item> getAllItems() {
         return itemRepository.findAll();
     }
+
+
 }
