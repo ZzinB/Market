@@ -5,6 +5,7 @@ import com.example.Wanted.Market.API.Payment.dto.PaymentRequest;
 import com.example.Wanted.Market.API.Payment.dto.PaymentResponse;
 import com.example.Wanted.Market.API.Payment.dto.PaymentStatus;
 import com.example.Wanted.Market.API.domain.*;
+import com.example.Wanted.Market.API.dto.ItemDetailResponse;
 import com.example.Wanted.Market.API.exception.ResourceNotFoundException;
 import com.example.Wanted.Market.API.repository.ItemRepository;
 import com.example.Wanted.Market.API.repository.MemberRepository;
@@ -113,6 +114,21 @@ public class ItemService {
 
     public List<Item> getAllItems() {
         return itemRepository.findAll();
+    }
+
+    /**
+     * 상품의 수정 가능일과 현재 날짜 기준 수정 가능 여부를 반환합니다.
+     * @param itemId Item ID
+     * @return 수정 가능일 및 수정 가능 여부
+     */
+    public ItemDetailResponse getItemDetails(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        LocalDate modificationAllowedDate = calDate(item);
+        boolean canBeModified = modificationAllowedDate != null && LocalDate.now().isBefore(modificationAllowedDate);
+
+        return new ItemDetailResponse(item, modificationAllowedDate, canBeModified);
     }
 
     /**
