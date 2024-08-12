@@ -1,16 +1,13 @@
 package com.example.Wanted.Market.API.controller;
 
-import com.example.Wanted.Market.API.domain.Member;
-import com.example.Wanted.Market.API.dto.MemberDto;
+import com.example.Wanted.Market.API.dto.UserFormDto;
 import com.example.Wanted.Market.API.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,7 +24,7 @@ public class MemberController {
     @ApiResponse(responseCode = "200", description = "User registered successfully")
     @ApiResponse(responseCode = "400", description = "Bad request")
 
-    public ResponseEntity<String> register(@RequestBody MemberDto memberDto) {
+    public ResponseEntity<String> register(@RequestBody UserFormDto memberDto) {
         memberService.registerMember(memberDto);
         return ResponseEntity.ok("Member registered successfully");
     }

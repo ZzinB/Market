@@ -1,7 +1,8 @@
 package com.example.Wanted.Market.API.service;
 
 import com.example.Wanted.Market.API.domain.Member;
-import com.example.Wanted.Market.API.dto.MemberDto;
+import com.example.Wanted.Market.API.domain.Role;
+import com.example.Wanted.Market.API.dto.UserFormDto;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +28,13 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Member registerMember(MemberDto memberDto) {
+    public Member registerMember(UserFormDto userFormDto) {
         // MemberDto를 Member로 변환
         Member member = new Member();
-        member.setUsername(memberDto.getUsername());
-        member.setEmail(memberDto.getEmail());
-        member.setPassword(passwordEncoder.encode(memberDto.getPassword()));
-        member.setRole(memberDto.getRole());
+        member.setUsername(userFormDto.getName());
+        member.setEmail(userFormDto.getEmail());
+        member.setPassword(passwordEncoder.encode(userFormDto.getPassword()));
+        member.setRole(Role.USER);
 
         // Member 저장
         return memberRepository.save(member);
