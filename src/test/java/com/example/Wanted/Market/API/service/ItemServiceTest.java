@@ -362,4 +362,44 @@ class ItemServiceTest {
         assertFalse(items.stream().anyMatch(item -> item.getName().equals("Item B")));
     }
 
+    @Test
+    @DisplayName("상품 Soft Delete 테스트")
+    void softDeleteItemTest() {
+        // Given
+        Item item = new Item();
+        item.setItemId(1L);
+        item.setName("Item to Delete");
+        item.setCreatedAt(LocalDateTime.now());
+        item.setDeletedAt(null);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        itemService.softDeleteItem(1L);
+
+        // Then
+        verify(itemRepository).save(argThat(i -> i.getDeletedAt() != null));
+    }
+
+
+    @Test
+    @DisplayName("상품 Hard Delete 테스트")
+    void hardDeleteItemTest() {
+        // Given
+        Item item = new Item();
+        item.setItemId(1L);
+        item.setName("Item to Delete");
+        item.setCreatedAt(LocalDateTime.now());
+        item.setDeletedAt(null);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+
+        // When
+        itemService.hardDeleteItem(1L);
+
+        // Then
+        verify(itemRepository).delete(item);
+    }
+
 }
