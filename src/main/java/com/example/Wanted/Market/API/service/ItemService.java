@@ -199,4 +199,19 @@ public class ItemService {
             }
         }
     }
+
+    public void softDeleteItem(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        item.setDeletedAt(LocalDateTime.now());
+        itemRepository.save(item);
+    }
+
+    public void hardDeleteItem(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        itemRepository.delete(item);
+    }
 }
