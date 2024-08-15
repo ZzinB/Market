@@ -49,6 +49,9 @@ public class Item {
 
     private LocalDateTime updatedAt;
 
+    @Column(nullable = true)
+    private LocalDateTime deletedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

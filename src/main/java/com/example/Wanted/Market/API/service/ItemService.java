@@ -175,4 +175,28 @@ public class ItemService {
         }
         return existingItem;
     }
+
+    /**
+     * 상품 목록 조회
+     * @param title 검색할 제목 (부분 검색 가능)
+     * @param sortOrder 정렬 기준 (오름차순 또는 내림차순)
+     * @return 상품 목록
+     */
+    public List<Item> getItems(String title, String sortOrder) {
+        if (title == null || title.trim().isEmpty()) {
+            // 제목이 없을 경우 생성일 기준으로 정렬 (오름차순 또는 내림차순)
+            if ("ASC".equalsIgnoreCase(sortOrder)) {
+                return itemRepository.findAllByDeletedAtIsNullOrderByCreatedAtAsc();
+            } else {
+                return itemRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
+            }
+        } else {
+            // 제목 기준 부분 검색 및 정렬
+            if ("ASC".equalsIgnoreCase(sortOrder)) {
+                return itemRepository.findByNameContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtAsc(title);
+            } else {
+                return itemRepository.findByNameContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc(title);
+            }
+        }
+    }
 }
