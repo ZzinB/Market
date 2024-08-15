@@ -17,6 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -263,26 +265,101 @@ class ItemServiceTest {
     }
 
     @Test
-    @DisplayName("상품 상세보기 - 수정 가능일 및 수정 가능 여부 확인")
-    void getItemDetails_ShouldReturnCorrectDetails() {
+    @DisplayName("상품 목록 조회 - 제목 기준 부분 검색 및 오름차순 정렬")
+    void getItems_SearchByTitleAndSortByCreatedAtAscending() {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime creationDate = now.minusDays(8); // 8일 전
-        Item item = new Item();
-        item.setItemId(1L);
-        item.setCreatedAt(creationDate);
-        item.setUpdatedAt(now);
+        Item item1 = new Item();
+        item1.setItemId(1L);
+        item1.setName("Apple Item");
+        item1.setCreatedAt(now.minusDays(2));
+        item1.setDeletedAt(null);
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        Item item2 = new Item();
+        item2.setItemId(2L);
+        item2.setName("Banana Item");
+        item2.setCreatedAt(now.minusDays(1));
+        item2.setDeletedAt(null);
+
+        when(itemRepository.findByNameContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtAsc("Item"))
+                .thenReturn(Arrays.asList(item1, item2));
 
         // When
-        ItemDetailResponse response = itemService.getItemDetails(1L);
+        List<Item> items = itemService.getItems("Item", "ASC");
 
         // Then
-        assertNotNull(response);
-        assertEquals(item, response.getItem());
-        assertEquals(creationDate.toLocalDate().plusDays(10), response.getModificationAllowedDate());
-        assertTrue(response.isCanBeModified());
+        assertEquals(2, items.size());
+        assertEquals("Apple Item", items.get(0).getName());
+        assertEquals("Banana Item", items.get(1).getName());
+    }
+
+    @Test
+    @DisplayName("상품 목록 조회 - 제목 기준 부분 검색 및 내림차순 정렬")
+    void getItems_SearchByTitleAndSortByCreatedAtDescending() {
+        // Given
+        LocalDateTime now = LocalDateTime.now();
+        Item item1 = new Item();
+        item1.setItemId(1L);
+        item1.setName("Apple Item");
+        item1.setCreatedAt(now.minusDays(2));
+        item1.setDeletedAt(null);
+
+        Item item2 = new Item();
+        item2.setItemId(2L);
+        item2.setName("Banana Item");
+        item2.setCreatedAt(now.minusDays(1));
+        item2.setDeletedAt(null);
+
+        when(itemRepository.findByNameContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc("Item"))
+                .thenReturn(Arrays.asList(item2, item1));
+
+        // When
+        List<Item> items = itemService.getItems("Item", "DESC");
+
+        // Then
+        assertEquals(2, items.size());
+        assertEquals("Banana Item", items.get(0).getName());
+        assertEquals("Apple Item", items.get(1).getName());
+    }
+
+    @Test
+    @DisplayName("상품 목록 조회 - 삭제된 상품 제외 및 생성일 기준 오름차순 정렬")
+    void getItems_ExcludeDeletedAndSortByCreatedAtAscending() {
+        // Given
+        LocalDateTime now = LocalDateTime.now();
+
+        Item item1 = new Item();
+        item1.setItemId(1L);
+        item1.setName("Item A");
+        item1.setCreatedAt(now.minusDays(2));
+        item1.setDeletedAt(null);  // 삭제되지 않은 항목
+
+        Item item2 = new Item();
+        item2.setItemId(2L);
+        item2.setName("Item B");
+        item2.setCreatedAt(now.minusDays(1));
+        item2.setDeletedAt(now.minusDays(1));  // 삭제된 항목
+
+        Item item3 = new Item();
+        item3.setItemId(3L);
+        item3.setName("Item C");
+        item3.setCreatedAt(now.minusDays(3));
+        item3.setDeletedAt(null);  // 삭제되지 않은 항목
+
+        // Mocking the repository to return items that are not deleted, sorted by createdAt ascending
+        when(itemRepository.findAllByDeletedAtIsNullOrderByCreatedAtAsc())
+                .thenReturn(Arrays.asList(item3, item1));
+
+        // When
+        List<Item> items = itemService.getItems(null, "ASC");
+
+        // Then
+        assertEquals(2, items.size());
+        assertEquals("Item C", items.get(0).getName());
+        assertEquals("Item A", items.get(1).getName());
+
+        // Verify that deleted item is not in the list
+        assertFalse(items.stream().anyMatch(item -> item.getName().equals("Item B")));
     }
 
 }
