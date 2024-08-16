@@ -17,4 +17,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     // 삭제되지 않은 상품을 생성일 기준으로 내림차순 정렬하여 조회
     List<Item> findAllByDeletedAtIsNullOrderByCreatedAtDesc();
+
 }

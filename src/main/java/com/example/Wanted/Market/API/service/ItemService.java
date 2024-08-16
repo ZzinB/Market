@@ -214,4 +214,14 @@ public class ItemService {
 
         itemRepository.delete(item);
     }
+
+    public void notifySale(Long itemId, String userEmail) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        String message = "상품 " + item.getName() + "이(가) 판매되었습니다.";
+
+        // 이메일로 알림 전송
+        notificationService.sendNotification(message, userEmail);
+    }
 }
