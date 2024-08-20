@@ -26,6 +26,8 @@ public class Member {
 
     private String password;
 
+    private String nickname;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Address> address = new HashSet<>();
 
