@@ -12,6 +12,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Data
 @ToString
 public class Member {
@@ -38,6 +39,10 @@ public class Member {
     private Role role;
 
     private double points;
+
+    private boolean isSocial;
+
+    private boolean isDel;
 
     public boolean isAdmin() {
         return this.role == Role.ADMIN;
