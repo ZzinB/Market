@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 public class SwaggerConfig {
@@ -31,4 +32,5 @@ public class SwaggerConfig {
                 .description("Swagger")
                 .version("1.0.0");
     }
+
 }

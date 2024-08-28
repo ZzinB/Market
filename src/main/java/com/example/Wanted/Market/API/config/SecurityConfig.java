@@ -1,15 +1,14 @@
 package com.example.Wanted.Market.API.config;
 
-import com.example.Wanted.Market.API.service.CustomUserDetailsService;
-import com.example.Wanted.Market.API.service.KakaoService;
+import com.example.Wanted.Market.API.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,35 +21,36 @@ public class SecurityConfig {
     @Value("${remember.me.key}")
     private String rememberMeKey;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-
-    private final KakaoService kakaoService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final UserDetailsService customUserDetailsService;
 
     @Autowired
-    public SecurityConfig(@Lazy KakaoService kakaoService) {
-        this.kakaoService = kakaoService;
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, UserDetailsService customUserDetailsService) {
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/auth/**", "/oauth2/**") // API와 OAuth2 로그인은 CSRF 비활성화
+                )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/oauth2/**", "/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/oauth2/**", "/", "/login", "/oauth2/authorization/kakao", "/home").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .loginPage("/api/auth/login") // 로그인 페이지
+                        .defaultSuccessUrl("/home", true) // 로그인 성공 후 리다이렉트 URL
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userService(kakaoService)
+                                .userService(customOAuth2UserService) // 사용자 정보 처리
                         )
                 )
                 .formLogin(formLogin ->
                         formLogin
-                                .loginPage("/login")
-                                .defaultSuccessUrl("/", true)
+                                .loginPage("/api/auth/login")
+                                .defaultSuccessUrl("/home", true)
                                 .permitAll()
                 )
                 .logout(logout -> logout
@@ -60,7 +60,7 @@ public class SecurityConfig {
                         rememberMe
                                 .tokenRepository(inMemoryTokenRepository())
                                 .tokenValiditySeconds(86400)
-                                .key(rememberMeKey) // 환경 변수에서 비밀 키 가져오기
+                                .key(rememberMeKey)
                                 .userDetailsService(customUserDetailsService)
                 )
                 .sessionManagement(sessionManagement ->
@@ -76,10 +76,5 @@ public class SecurityConfig {
     @Bean
     public InMemoryTokenRepositoryImpl inMemoryTokenRepository() {
         return new InMemoryTokenRepositoryImpl();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
