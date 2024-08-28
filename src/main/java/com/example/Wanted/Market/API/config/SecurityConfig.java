@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/api/auth/login") // 로그인 페이지
+                        .loginPage("/api/auth/kakao/login") // 로그인 페이지
                         .defaultSuccessUrl("/home", true) // 로그인 성공 후 리다이렉트 URL
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService) // 사용자 정보 처리
