@@ -44,8 +44,34 @@ public class Member {
 
     private boolean isDel;
 
+    @Column(name = "access_token")
+    private String accessToken;
+
+    @Enumerated(EnumType.STRING)
+    private SocialType socialType; //KAKAO, NAVER
+
+    private String socialId; //(일반 로그인인 경우 null)
+
+    private String refreshToken; // 리프레시 토큰
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     public boolean isAdmin() {
         return this.role == Role.ADMIN;
     }
 
+    // 유저 권한 설정 메소드
+    public void authorizeUser() {
+        this.role = Role.USER;
+    }
+
+    // 비밀번호 암호화 메소드
+    public void passwordEncode(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(this.password);
+    }
+
+    public void updateRefreshToken(String updateRefreshToken) {
+        this.refreshToken = updateRefreshToken;
+    }
 }
