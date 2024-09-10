@@ -31,10 +31,10 @@ public class MemberServiceTest {
 
     @Test
     @DisplayName("회원가입 - 성공 케이스")
-    void registerMember_Success() {
+    void registerMember_Success() throws Exception {
         // Given
         UserFormDto userFormDto = new UserFormDto();
-        userFormDto.setName("홍길동");
+        userFormDto.setUsername("홍길동");
         userFormDto.setEmail("test@example.com");
         userFormDto.setPassword("Test1234!");
         userFormDto.setPostcode("12345");
@@ -43,7 +43,7 @@ public class MemberServiceTest {
         userFormDto.setPhoneNumber("010-1234-5678");
 
         Member member = new Member();
-        member.setUsername(userFormDto.getName());
+        member.setUsername(userFormDto.getUsername());
         member.setEmail(userFormDto.getEmail());
         member.setPassword("encodedPassword");
 
