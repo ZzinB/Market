@@ -1,14 +1,13 @@
 package com.example.Wanted.Market.API.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Data
-@ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Address {
 
     @Id
