@@ -3,16 +3,22 @@ package com.example.Wanted.Market.API.controller;
 import com.example.Wanted.Market.API.domain.oauth.CustomOAuth2User;
 import com.example.Wanted.Market.API.dto.OAuthAttributes;
 import com.example.Wanted.Market.API.dto.UserFormDto;
+import com.example.Wanted.Market.API.exception.EmailAlreadyExistsException;
+import com.example.Wanted.Market.API.exception.NicknameAlreadyExistsException;
 import com.example.Wanted.Market.API.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -52,12 +58,16 @@ public class SignUpController {
     }
 
     @PostMapping("/sign-up")
-    public String processSignUp(@ModelAttribute UserFormDto userFormDto) {
+    public String processSignUp(@ModelAttribute UserFormDto userFormDto, RedirectAttributes redirectAttributes) {
         try {
             memberService.registerMember(userFormDto); // 회원가입 로직
             return "redirect:/home"; // 회원가입 성공 후 /home으로 리다이렉트
+        } catch (EmailAlreadyExistsException | NicknameAlreadyExistsException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/sign-up"; // 에러 발생 시 다시 회원가입 폼으로 리다이렉트
         } catch (Exception e) {
-            return "redirect:/sign-up?error"; // 에러 발생 시 다시 회원가입 폼으로 리다이렉트
+            redirectAttributes.addFlashAttribute("errorMessage", "회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.");
+            return "redirect:/sign-up";
         }
     }
 }
