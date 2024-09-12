@@ -1,54 +1,39 @@
 package com.example.Wanted.Market.API.service;
 
-import com.example.Wanted.Market.API.domain.Item;
-import com.example.Wanted.Market.API.repository.ItemRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class AlertNotificationServiceImplTest {
 
-    @MockBean
-    private NotificationService notificationService;
+    @InjectMocks
+    private AlertNotificationServiceImpl alertNotificationService;
 
-    @MockBean
-    private ItemRepository itemRepository;
+    @Mock
+    private DynamicMailSenderService dynamicMailSenderService;
 
-    @Autowired
-    private ItemService itemService;
+    @Mock
+    private JavaMailSender mailSender;
 
     @Test
-    @DisplayName("상품 팔림 알림 - 이메일 전송")
-    void notifySale_SendEmailNotification() {
+    public void testSendNotification() {
         // Given
-        Long itemId = 1L;
-        String userEmail = "user@example.com";
+        String provider = "naver";
+        String message = "상품이 판매되었습니다!";
+        String recipient = "test@example.com";
 
-        // 테스트에 사용할 아이템 설정
-        Item mockItem = new Item();
-        mockItem.setItemId(itemId);
-        mockItem.setName("Test Item");
-
-        // itemRepository.findById 호출 시 mockItem 반환
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(mockItem));
+        when(dynamicMailSenderService.getJavaMailSender(provider)).thenReturn(mailSender);
 
         // When
-        itemService.notifySale(itemId, userEmail);
+        alertNotificationService.sendNotification(provider, message, recipient);
 
         // Then
-        verify(notificationService, times(1)).sendNotification(anyString(), eq(userEmail));
+        verify(mailSender).send(any(SimpleMailMessage.class));
     }
 }
