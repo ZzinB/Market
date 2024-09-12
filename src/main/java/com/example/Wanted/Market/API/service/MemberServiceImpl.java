@@ -4,6 +4,8 @@ import com.example.Wanted.Market.API.domain.Address;
 import com.example.Wanted.Market.API.domain.Member;
 import com.example.Wanted.Market.API.domain.Role;
 import com.example.Wanted.Market.API.dto.UserFormDto;
+import com.example.Wanted.Market.API.exception.EmailAlreadyExistsException;
+import com.example.Wanted.Market.API.exception.NicknameAlreadyExistsException;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,37 +30,41 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Member registerMember(UserFormDto userFormDto) throws Exception {
+    @Transactional
+    public Member registerMember(UserFormDto userFormDto) throws EmailAlreadyExistsException, NicknameAlreadyExistsException {
         // 이메일 중복 체크
         if (memberRepository.findByEmail(userFormDto.getEmail()).isPresent()) {
-            throw new Exception("이미 존재하는 이메일입니다.");
+            throw new EmailAlreadyExistsException("이미 존재하는 이메일입니다.");
         }
 
         // 닉네임 중복 체크
         if (memberRepository.findByNickname(userFormDto.getNickname()).isPresent()) {
-            throw new Exception("이미 존재하는 닉네임입니다.");
+            throw new NicknameAlreadyExistsException("이미 존재하는 닉네임입니다.");
         }
 
-        Member member = new Member();
-        member.setUsername(userFormDto.getUsername());
-        member.setEmail(userFormDto.getEmail());
-        member.setPassword(passwordEncoder.encode(userFormDto.getPassword()));
-        member.setNickname(userFormDto.getNickname());
-        member.setPhoneNumber(userFormDto.getPhoneNumber());
-        Address address = new Address();
-        address.setStreet(userFormDto.getAddress()); // address -> street
-        address.setCity(userFormDto.getDetailAddress()); // 도시 정보가 있으면 설정
-        address.setState(userFormDto.getExtraAddress()); // 주 정보가 있으면 설정
-        address.setZipCode(userFormDto.getPostcode()); // postcode -> zipCode
+        // 새로운 Member 객체 생성
+        Member member = Member.builder()
+                .username(userFormDto.getUsername())
+                .email(userFormDto.getEmail())
+                .password(passwordEncoder.encode(userFormDto.getPassword()))
+                .nickname(userFormDto.getNickname())
+                .phoneNumber(userFormDto.getPhoneNumber())
+                .role(Role.USER)
+                .isSocial(false)
+                .build();
 
-        // Address 객체를 Set으로 변환
-        Set<Address> addresses = new HashSet<>();
-        addresses.add(address);
+        // Address 객체 생성
+        Address address = Address.builder()
+                .street(userFormDto.getAddress())
+                .city(userFormDto.getDetailAddress())
+                .state(userFormDto.getExtraAddress())
+                .zipCode(userFormDto.getPostcode())
+                .member(member) // Address와 Member의 연결 설정
+                .build();
 
-        // Member에 주소 설정
-        member.setAddress(addresses);
-        member.setRole(Role.USER);
-        member.setSocial(false);
+        // Member 객체에 Address 추가
+        member.getAddress().add(address);
+
         return memberRepository.save(member);
     }
 
