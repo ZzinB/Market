@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +31,8 @@ public class Member {
     private String nickname;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Address> address = new HashSet<>();
+    @Builder.Default
+    private List<Address> address = new ArrayList<>();
 
     @OneToMany(mappedBy = "seller")
     private List<Item> items;
