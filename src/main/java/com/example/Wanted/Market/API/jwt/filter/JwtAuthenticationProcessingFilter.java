@@ -1,10 +1,10 @@
-package com.example.Wanted.Market.API.filter;
+package com.example.Wanted.Market.API.jwt.filter;
 
 
 import com.example.Wanted.Market.API.domain.Member;
 import com.example.Wanted.Market.API.repository.MemberRepository;
-import com.example.Wanted.Market.API.service.JwtService;
-import com.example.Wanted.Market.API.util.PasswordUtil;
+import com.example.Wanted.Market.API.jwt.service.JwtService;
+import com.example.Wanted.Market.API.security.util.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

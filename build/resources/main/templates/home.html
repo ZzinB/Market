@@ -21,12 +21,31 @@
         <h4 th:text="'환영합니다, ' + ${username} + '!'"></h4>
         <a href="/logout" class="btn btn-primary mt-3">Logout</a>
     </div><!-- end card-body -->
+<!--    <a href="/kakao/send-message/이름" class="btn btn-success mt-3">Send Kakao Message</a>-->
+    <button onclick="sendKakaoMessage('이름')" class="btn btn-success mt-3">Send Kakao Message</button>
+
 </div><!-- end card -->
 
 <!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+<script>
+    function sendKakaoMessage(name) {
+        fetch(`/kakao/send-message/${name}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.text())
+            .then(data => {
+                alert(data); // 서버에서 반환된 메시지를 alert로 표시
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
 </body>
 </html>

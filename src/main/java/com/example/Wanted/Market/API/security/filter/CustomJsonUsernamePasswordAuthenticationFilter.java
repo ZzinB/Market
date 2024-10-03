@@ -1,4 +1,4 @@
-package com.example.Wanted.Market.API.filter;
+package com.example.Wanted.Market.API.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationServiceException;

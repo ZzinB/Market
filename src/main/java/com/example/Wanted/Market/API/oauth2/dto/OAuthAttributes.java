@@ -1,16 +1,15 @@
-package com.example.Wanted.Market.API.dto;
+package com.example.Wanted.Market.API.oauth2.dto;
 
 import com.example.Wanted.Market.API.domain.Member;
 import com.example.Wanted.Market.API.domain.Role;
 import com.example.Wanted.Market.API.domain.SocialType;
-import com.example.Wanted.Market.API.domain.oauth.KakaoOAuth2UserInfo;
-import com.example.Wanted.Market.API.domain.oauth.NaverOAuth2UserInfo;
-import com.example.Wanted.Market.API.domain.oauth.OAuth2UserInfo;
+import com.example.Wanted.Market.API.oauth2.domain.oauth.KakaoOAuth2UserInfo;
+import com.example.Wanted.Market.API.oauth2.domain.oauth.NaverOAuth2UserInfo;
+import com.example.Wanted.Market.API.oauth2.domain.oauth.OAuth2UserInfo;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 각 소셜에서 받아오는 데이터가 다르므로

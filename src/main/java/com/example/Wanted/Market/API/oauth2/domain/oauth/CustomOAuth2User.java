@@ -1,4 +1,4 @@
-package com.example.Wanted.Market.API.domain.oauth;
+package com.example.Wanted.Market.API.oauth2.domain.oauth;
 
 import com.example.Wanted.Market.API.domain.Role;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * DefaultOAuth2User를 상속하고, email과 role 필드를 추가로 가진다.
+ * DefaultOAuth2User를 상속하고, email과 role 필드를 추가로 가진다. (추가 필드)
+ * 소셜 로그인 시 인증된 사용자의 정보
  */
 @Getter
 public class CustomOAuth2User extends DefaultOAuth2User {

@@ -59,6 +59,13 @@ public class Member {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "kakao_access_token")
+    private String kakaoAccessToken;
+
+    @Column(name = "kakao_refresh_token")
+    private String kakaoRefreshToken;
+
+
     public boolean isAdmin() {
         return this.role == Role.ADMIN;
     }

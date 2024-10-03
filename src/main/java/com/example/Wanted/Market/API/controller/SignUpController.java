@@ -1,18 +1,12 @@
 package com.example.Wanted.Market.API.controller;
 
-import com.example.Wanted.Market.API.domain.oauth.CustomOAuth2User;
-import com.example.Wanted.Market.API.dto.OAuthAttributes;
+import com.example.Wanted.Market.API.oauth2.domain.oauth.CustomOAuth2User;
 import com.example.Wanted.Market.API.dto.UserFormDto;
 import com.example.Wanted.Market.API.exception.EmailAlreadyExistsException;
 import com.example.Wanted.Market.API.exception.NicknameAlreadyExistsException;
 import com.example.Wanted.Market.API.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

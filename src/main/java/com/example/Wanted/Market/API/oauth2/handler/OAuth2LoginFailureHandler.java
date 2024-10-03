@@ -1,4 +1,4 @@
-package com.example.Wanted.Market.API.handler;
+package com.example.Wanted.Market.API.oauth2.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;

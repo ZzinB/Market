@@ -1,4 +1,4 @@
-package com.example.Wanted.Market.API.service;
+package com.example.Wanted.Market.API.jwt.service;
 
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import io.jsonwebtoken.Claims;

@@ -1,31 +1,32 @@
 package com.example.Wanted.Market.API.config;
 
-import com.example.Wanted.Market.API.filter.CustomJsonUsernamePasswordAuthenticationFilter;
-import com.example.Wanted.Market.API.filter.JwtAuthenticationProcessingFilter;
-import com.example.Wanted.Market.API.handler.LoginFailureHandler;
-import com.example.Wanted.Market.API.handler.LoginSuccessHandler;
-import com.example.Wanted.Market.API.handler.OAuth2LoginFailureHandler;
-import com.example.Wanted.Market.API.handler.OAuth2LoginSuccessHandler;
+import com.example.Wanted.Market.API.security.filter.CustomJsonUsernamePasswordAuthenticationFilter;
+import com.example.Wanted.Market.API.jwt.filter.JwtAuthenticationProcessingFilter;
+import com.example.Wanted.Market.API.security.handler.LoginFailureHandler;
+import com.example.Wanted.Market.API.security.handler.LoginSuccessHandler;
+import com.example.Wanted.Market.API.oauth2.handler.OAuth2LoginFailureHandler;
+import com.example.Wanted.Market.API.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.example.Wanted.Market.API.repository.MemberRepository;
-import com.example.Wanted.Market.API.service.CustomOAuth2UserService;
-import com.example.Wanted.Market.API.service.JwtService;
+import com.example.Wanted.Market.API.oauth2.service.CustomOAuth2UserService;
+import com.example.Wanted.Market.API.jwt.service.JwtService;
 import com.example.Wanted.Market.API.service.LoginService;
-import com.example.Wanted.Market.API.service.MemberServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
@@ -60,7 +61,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/api/auth/**", "/oauth2/**") // API와 OAuth2 로그인은 CSRF 비활성화
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/oauth2/**", "/", "/login", "/home", "/sign-up").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/oauth2/**", "/", "/login", "/home", "/sign-up", "/kakao/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -169,4 +170,5 @@ public class SecurityConfig {
     public InMemoryTokenRepositoryImpl inMemoryTokenRepository() {
         return new InMemoryTokenRepositoryImpl();
     }
+
 }

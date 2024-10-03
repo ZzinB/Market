@@ -1,7 +1,10 @@
-package com.example.Wanted.Market.API.domain.oauth;
+package com.example.Wanted.Market.API.oauth2.domain.oauth;
 
 import java.util.Map;
 
+/**
+ * 사용자 정보를 가져오는 추상 클래스
+ */
 public abstract class OAuth2UserInfo {
 
     protected Map<String, Object> attributes;

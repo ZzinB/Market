@@ -1,11 +1,13 @@
-package com.example.Wanted.Market.API.handler;
+package com.example.Wanted.Market.API.oauth2.handler;
 
 import com.example.Wanted.Market.API.domain.Role;
-import com.example.Wanted.Market.API.domain.oauth.CustomOAuth2User;
+import com.example.Wanted.Market.API.messaging.service.CustomMessageService;
+import com.example.Wanted.Market.API.oauth2.domain.oauth.CustomOAuth2User;
 import com.example.Wanted.Market.API.repository.MemberRepository;
-import com.example.Wanted.Market.API.service.JwtService;
+import com.example.Wanted.Market.API.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -22,7 +24,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
-
+    @Autowired
+    private CustomMessageService customMessageService;
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         log.info("OAuth2 Login 성공!");
@@ -43,11 +46,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 //                findUser.authorizeUser();
             } else {
                 loginSuccess(response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
+                boolean result = customMessageService.sendMyMessage();
+
             }
         } catch (Exception e) {
             throw e;
         }
-
     }
 
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {

@@ -1,4 +1,4 @@
-package com.example.Wanted.Market.API.util;
+package com.example.Wanted.Market.API.security.util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

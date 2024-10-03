@@ -4,6 +4,59 @@
       "name": "kakaopay",
       "type": "com.example.Wanted.Market.API.pay.kakaopay.KakaoPayProperties",
       "sourceType": "com.example.Wanted.Market.API.pay.kakaopay.KakaoPayProperties"
+    },
+    {
+      "name": "mail",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties"
+    },
+    {
+      "name": "mail.gmail",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties",
+      "sourceMethod": "getGmail()"
+    },
+    {
+      "name": "mail.gmail.properties",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig",
+      "sourceMethod": "getProperties()"
+    },
+    {
+      "name": "mail.gmail.properties.smtp",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties",
+      "sourceMethod": "getSmtp()"
+    },
+    {
+      "name": "mail.gmail.properties.smtp.starttls",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp$Starttls",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp",
+      "sourceMethod": "getStarttls()"
+    },
+    {
+      "name": "mail.naver",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties",
+      "sourceMethod": "getNaver()"
+    },
+    {
+      "name": "mail.naver.properties",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig",
+      "sourceMethod": "getProperties()"
+    },
+    {
+      "name": "mail.naver.properties.smtp",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties",
+      "sourceMethod": "getSmtp()"
+    },
+    {
+      "name": "mail.naver.properties.smtp.starttls",
+      "type": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp$Starttls",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp",
+      "sourceMethod": "getStarttls()"
     }
   ],
   "properties": [
@@ -16,6 +69,76 @@
       "name": "kakaopay.secret-key",
       "type": "java.lang.String",
       "sourceType": "com.example.Wanted.Market.API.pay.kakaopay.KakaoPayProperties"
+    },
+    {
+      "name": "mail.gmail.host",
+      "type": "java.lang.String",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
+    },
+    {
+      "name": "mail.gmail.password",
+      "type": "java.lang.String",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
+    },
+    {
+      "name": "mail.gmail.port",
+      "type": "java.lang.Integer",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
+    },
+    {
+      "name": "mail.gmail.properties.smtp.auth",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp"
+    },
+    {
+      "name": "mail.gmail.properties.smtp.ssl",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp"
+    },
+    {
+      "name": "mail.gmail.properties.smtp.starttls.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp$Starttls"
+    },
+    {
+      "name": "mail.gmail.username",
+      "type": "java.lang.String",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
+    },
+    {
+      "name": "mail.naver.host",
+      "type": "java.lang.String",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
+    },
+    {
+      "name": "mail.naver.password",
+      "type": "java.lang.String",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
+    },
+    {
+      "name": "mail.naver.port",
+      "type": "java.lang.Integer",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
+    },
+    {
+      "name": "mail.naver.properties.smtp.auth",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp"
+    },
+    {
+      "name": "mail.naver.properties.smtp.ssl",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp"
+    },
+    {
+      "name": "mail.naver.properties.smtp.starttls.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailProperties$Smtp$Starttls"
+    },
+    {
+      "name": "mail.naver.username",
+      "type": "java.lang.String",
+      "sourceType": "com.example.Wanted.Market.API.messaging.MailConfigProperties$MailServerConfig"
     }
   ],
   "hints": []

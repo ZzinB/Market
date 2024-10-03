@@ -7,6 +7,7 @@ import com.example.Wanted.Market.API.Payment.dto.PaymentStatus;
 import com.example.Wanted.Market.API.domain.*;
 import com.example.Wanted.Market.API.dto.ItemDetailResponse;
 import com.example.Wanted.Market.API.exception.ResourceNotFoundException;
+import com.example.Wanted.Market.API.messaging.service.NotificationService;
 import com.example.Wanted.Market.API.repository.ItemRepository;
 import com.example.Wanted.Market.API.repository.MemberRepository;
 import com.example.Wanted.Market.API.repository.OrdersRepository;
@@ -95,14 +96,18 @@ public class ItemService {
         if ("SUCCESS".equals(paymentStatus.getStatus())) {
             item.setStatus(ProductStatus.COMPLETED); // 결제 완료 시 상태를 COMPLETED로 변경
             itemRepository.save(item);
+
+            // 판매자에게 포인트 전송
+            double sellerEarnings = item.getPrice() * 0.9; // 90% 지급
+            seller.setPoints(seller.getPoints() + sellerEarnings);
+            memberRepository.save(seller);
+
+            // 판매자에게 알림 전송
+            notifyUserOnSale(seller, item.getName());
+
         } else {
             throw new RuntimeException("Payment failed");
         }
-
-        // 판매자에게 포인트 전송
-        double sellerEarnings = item.getPrice() * 0.9; // 90% 지급
-        seller.setPoints(seller.getPoints() + sellerEarnings);
-        memberRepository.save(seller);
 
         return savedOrder;
     }
@@ -215,13 +220,30 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
-    public void notifySale(Long itemId, String userEmail) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+    public void notifyUserOnSale(Member member, String itemName) {
+        String message = "축하합니다! 귀하의 물건이 판매되었습니다: " + itemName;
+        if (member.isSocial()) { // 소셜 로그인 사용자일 경우
+            String provider = member.getSocialType().toString();; // 소셜 로그인 타입 가져오기
 
-        String message = "상품 " + item.getName() + "이(가) 판매되었습니다.";
+            if ("KAKAO".equals(provider)) {
+                // 액세스 토큰을 직접 사용하여 카카오톡 알림 전송
+                String accessToken = member.getAccessToken(); // Member 클래스에서 액세스 토큰 가져오기
+                boolean success = notificationService.sendSocialNotification("kakao", message, accessToken);
 
-        // 이메일로 알림 전송
-        notificationService.sendNotification(message, userEmail);
+                if (success) {
+                    System.out.println("카카오톡 알림이 성공적으로 전송되었습니다.");
+                } else {
+                    System.out.println("카카오톡 알림 전송에 실패했습니다.");
+                }
+            } else if ("NAVER".equals(provider)) {
+                String email = member.getEmail(); // 네이버 이메일로 알림 전송
+                notificationService.sendNotification("naver", message, email);
+                System.out.println("네이버 메일로 알림이 성공적으로 전송되었습니다.");
+            }
+        } else { // 일반 로그인 사용자일 경우
+            String email = member.getEmail();
+            notificationService.sendNotification("email", message, email);
+            System.out.println("이메일 알림이 성공적으로 전송되었습니다.");
+        }
     }
 }

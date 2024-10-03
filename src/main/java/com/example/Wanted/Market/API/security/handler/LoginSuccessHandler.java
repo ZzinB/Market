@@ -1,7 +1,7 @@
-package com.example.Wanted.Market.API.handler;
+package com.example.Wanted.Market.API.security.handler;
 
 import com.example.Wanted.Market.API.repository.MemberRepository;
-import com.example.Wanted.Market.API.service.JwtService;
+import com.example.Wanted.Market.API.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
