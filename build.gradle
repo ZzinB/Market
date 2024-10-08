@@ -58,7 +58,9 @@ dependencies {
 
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
-
+	//actuator, prometheus(micrometer)
+	implementation ("org.springframework.boot:spring-boot-starter-actuator")
+	runtimeOnly ("io.micrometer:micrometer-registry-prometheus")
 
 }
 
