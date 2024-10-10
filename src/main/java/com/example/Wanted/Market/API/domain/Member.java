@@ -65,6 +65,18 @@ public class Member {
     @Column(name = "kakao_refresh_token")
     private String kakaoRefreshToken;
 
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Post> posts = new ArrayList<>(); //작성한 게시글
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PostView> postViews = new ArrayList<>(); //PostView 목록
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chat> chats; // 채팅 목록
+
+
 
     public boolean isAdmin() {
         return this.role == Role.ADMIN;
