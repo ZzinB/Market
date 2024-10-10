@@ -26,7 +26,10 @@ public class Post {
     @JoinColumn(name = "item_id", nullable = true)
     private Item item; // 연결된 상품
 
+    private int viewCount; // 조회수 추가
+
     public Post() {
         this.createdDate = LocalDateTime.now();
+        this.viewCount = 0;
     }
 }
