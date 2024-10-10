@@ -26,4 +26,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
     private Member buyer;
+
+    private double shippingCost; // 배송비
+    //private String category; // 카테고리
 }
