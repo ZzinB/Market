@@ -1,7 +1,7 @@
-package com.example.Wanted.Market.API.controller;
+package com.example.Wanted.Market.API.chat.controller;
 
-import com.example.Wanted.Market.API.domain.Chat;
-import com.example.Wanted.Market.API.service.ChatService;
+import com.example.Wanted.Market.API.chat.domain.Chat;
+import com.example.Wanted.Market.API.chat.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

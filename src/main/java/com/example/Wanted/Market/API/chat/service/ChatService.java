@@ -1,7 +1,7 @@
-package com.example.Wanted.Market.API.service;
+package com.example.Wanted.Market.API.chat.service;
 
-import com.example.Wanted.Market.API.domain.Chat;
-import com.example.Wanted.Market.API.repository.ChatRepository;
+import com.example.Wanted.Market.API.chat.domain.Chat;
+import com.example.Wanted.Market.API.chat.repository.ChatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,6 @@
-package com.example.Wanted.Market.API.repository;
+package com.example.Wanted.Market.API.chat.repository;
 
-import com.example.Wanted.Market.API.domain.Chat;
-import org.hibernate.sql.ast.tree.expression.JdbcParameter;
+import com.example.Wanted.Market.API.chat.domain.Chat;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

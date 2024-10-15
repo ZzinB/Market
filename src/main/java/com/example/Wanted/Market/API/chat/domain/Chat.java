@@ -1,5 +1,6 @@
-package com.example.Wanted.Market.API.domain;
+package com.example.Wanted.Market.API.chat.domain;
 
+import com.example.Wanted.Market.API.domain.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
