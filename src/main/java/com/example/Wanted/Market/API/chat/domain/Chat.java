@@ -1,6 +1,7 @@
 package com.example.Wanted.Market.API.chat.domain;
 
 import com.example.Wanted.Market.API.domain.Member;
+import com.example.Wanted.Market.API.domain.Post;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -26,6 +27,8 @@ public class Chat {
 //    @ManyToOne
 //    @JoinColumn(name = "post_id", nullable = false)
 //    private Post post; // 게시글
+
+    private Long postId;
 
     @NotBlank(message = "메시지는 필수 입력 값입니다.")
     private String content; //내용
