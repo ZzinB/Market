@@ -58,10 +58,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/auth/**", "/oauth2/**") // API와 OAuth2 로그인은 CSRF 비활성화
+                        .ignoringRequestMatchers("/api/auth/**", "/oauth2/**", "/stomp/**") // API와 OAuth2 로그인은 CSRF 비활성화
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/oauth2/**", "/", "/login", "/home", "/sign-up", "/kakao/**", "/actuator/**").permitAll()
+                        .requestMatchers( "/", "/stomp.html","/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/oauth2/**", "/", "/login", "/home", "/sign-up", "/kakao/**", "/actuator/**", "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
